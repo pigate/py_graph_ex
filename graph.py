@@ -132,6 +132,31 @@ class Graph(object):
         isolated.append(vertex)
     return isolated 
 
+  def delta(self):
+    """minimum degree of vertices"""
+    min = 0
+    #initialize min to degree of first vertice
+    if len(self.__graph_dict.keys()) == 0:
+      return min
+    min = self.vertex_degree(self.__graph_dict.keys()[0])
+    for vertex in self.__graph_dict:
+      new_min = self.vertex_degree(vertex)
+      if new_min < min:
+        min = new_min
+    return min
+
+  def Delta(self):
+    """maximum degree of vertices"""
+    max = 0
+    #initialize max to degree of first vertice
+    if len(self.__graph_dict.keys()) == 0:
+      return max
+    max = self.vertex_degree(self.__graph_dict.keys()[0])
+    for vertex in self.__graph_dict:
+      new_max = self.vertex_degree(vertex)
+      if new_max > max:
+        max = new_max
+    return max
 if __name__ == "__main__":
   g = { "a" : ["d"],
         "b" : ["c"],
@@ -210,3 +235,11 @@ if __name__ == "__main__":
   isolated = graph.find_isolated_vertices()
   print "Isolated: ",
   print isolated 
+
+  delta = graph.delta()
+  print "delta: ",
+  print delta
+
+  Delta = graph.Delta()
+  print "Delta: ",
+  print Delta
