@@ -70,6 +70,23 @@ class Graph(object):
           return extended_path
     return None
 
+  def find_all_paths(self, start_vertex, end_vertex, path=[]):
+    """find all paths from start_vertex to end_vertex in graph"""
+    graph = self.__graph_dict
+    path = path + [start_vertex]
+    paths = [path]
+    if start_vertex == end_vertex:
+      return paths
+    if start_vertex not in graph:
+      return []
+    for vertex in graph[start_vertex]:
+      #check for cycle
+      if vertex not in path: 
+        extended_paths = self.find_all_paths(vertex, end_vertex, path)
+        for p in extended_paths:
+          paths.append(p)
+    return paths
+
 if __name__ == "__main__":
   g = { "a" : ["d"],
         "b" : ["c"],
@@ -117,4 +134,10 @@ if __name__ == "__main__":
   print "Path from a to f: ",
   print path_a_f
   
+  all_paths_a_b = graph.find_all_paths("a", "b", [])
+  print "All paths from a to b: ",
+  print all_paths_a_b
 
+  all_paths_a_f = graph.find_all_paths("a", "f", [])
+  print "All paths from a to f: ",
+  print all_paths_a_f
