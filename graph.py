@@ -157,6 +157,18 @@ class Graph(object):
       if new_max > max:
         max = new_max
     return max
+
+  """degree sequence of undirected graph is sequence 
+	of its vertex degrees in decreasing order. 
+	i.e. [5, 4, 3, 2, 1, 0, 0]"""
+  def degree_sequence(self):
+    """ calculates degree sequences """
+    seq = []
+    for vertex in self.__graph_dict:
+      seq.append(self.vertex_degree(vertex))
+    seq.sort(reverse=True)
+    return seq   
+
 if __name__ == "__main__":
   g = { "a" : ["d"],
         "b" : ["c"],
@@ -243,3 +255,7 @@ if __name__ == "__main__":
   Delta = graph.Delta()
   print "Delta: ",
   print Delta
+
+  deg_sequence = graph.degree_sequence()
+  print "Degree sequence: ",
+  print deg_sequence
