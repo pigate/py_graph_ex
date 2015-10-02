@@ -76,12 +76,15 @@ class Graph(object):
     return None
 
   def find_all_paths(self, start_vertex, end_vertex, path=[]):
-    """find all paths from start_vertex to end_vertex in graph"""
+    """find all paths from start_vertex to end_vertex in graph
+      if start_vertex == end_vertex, returns [start_vertex]
+      if no path, returns []
+    """
     graph = self.__graph_dict
     path = path + [start_vertex]
-    paths = [path]
+    paths = []
     if start_vertex == end_vertex:
-      return paths
+      return [path]
     if start_vertex not in graph:
       return []
     for vertex in graph[start_vertex]:
@@ -171,10 +174,14 @@ class Graph(object):
 
   def density(self):
     """returns density of graph.
-      	density is ratio of number of edges of a graph 	
+      	Density is ratio of number of edges of a graph 	
           and total number of edges the graph can have.
           Measures how close the graph is to completed graph
     	Every pair of vertice is connected by a unique edge
+        For non empty graph:
+        density = 2 * |E|/(|V|*|V-1|)
+        dense graphs have density close to 1
+        sparse graphs have density close to 0
     """
     num_keys = len(self.__graph_dict.keys())
     tot_num_edges_possible = 0
@@ -190,7 +197,8 @@ class Graph(object):
       graph is connected if every pair of verices in graph is connected"""
     #pick start_vertex
     #record which vertexes start_vertex is connected to
-    #if that collection of vertexes == collection of total vertexes, that vertex is connected
+    #if that collection of vertexes == collection of total vertexes, 
+    #  that vertex is connected
     if vertices_encountered is None:
       vertices_encountered = set()
     vertices = list(self.__graph_dict.keys())
@@ -209,6 +217,53 @@ class Graph(object):
       if neighbor not in vertices_encountered:
         current_state = current_state or self.is_connected(vertices_encountered, neighbor)
     return current_state 
+
+  def dist(self, vertex_a, vertex_b):
+    """dist between two vertices in the graph (not counting loops)
+      dist is length of shortest path between the two vertices.
+      returns -1 if no path, 0 if vertex_a == vertex_b
+    """
+    graph = self.__graph_dict
+    dist = -1
+    if vertex_a not in graph or vertex_b not in graph:
+      return dist
+    #return shortest distance between the vertexes
+    paths = self.find_all_paths(vertex_a, vertex_b, [])
+    if len(paths) == 0:
+      return dist
+    min_dist = len(paths[0])
+    for path in paths:
+      if len(path) < min_dist:
+        min_dist = len(path)
+    return min_dist
+
+  def eccentricity(self, vertex):
+    graph = self.__graph_dict
+    eccentricity = -1
+    if vertex not in graph:
+      return eccentricity
+    for other_vertex in graph:
+      paths = []
+      if other_vertex is not vertex:
+        paths = self.find_all_paths(vertex, other_vertex, [])
+      if len(paths) > 0:
+        for path in paths:
+          if len(path) > eccentricity:
+            eccentricity = len(path)
+    return eccentricity
+ 
+  def diameter(self):
+    """returns diameter of graph.
+      diameter d of graph is defined as maximum eccentricity of any vertex in graph.
+      eccentricity of a vertex is max distance to any other vertex graph
+    """
+    max_eccentricity = 0
+    for node in self.__graph_dict:
+      eccentricity = self.eccentricity(node)
+      if eccentricity > max_eccentricity:
+        max_eccentricity = eccentricity
+    return max_eccentricity
+
 
 if __name__ == "__main__":
   g = { "a" : ["d"],
@@ -281,33 +336,6 @@ if __name__ == "__main__":
   print "Cycle from f: ",
   print cycle_f
 
-  for vertex in graph.vertices():
-    print "Degree of " + str(vertex) + ": ",
-    print graph.vertex_degree(vertex)
-
-  isolated = graph.find_isolated_vertices()
-  print "Isolated: ",
-  print isolated 
-
-  delta = graph.delta()
-  print "delta: ",
-  print delta
-
-  Delta = graph.Delta()
-  print "Delta: ",
-  print Delta
-
-  deg_sequence = graph.degree_sequence()
-  print "Degree sequence: ",
-  print deg_sequence
-
-  print "Density: ",
-  print graph.density()
-  print "Number of edges: ",
-  print len(graph.edges())
-  print "Is our graph connected? ",
-  print graph.is_connected(None)
-  
   complete_graph = { 
       "a" : ["b","c"],
       "b" : ["a","c"],
@@ -320,19 +348,51 @@ if __name__ == "__main__":
       "c" : []
   }
 
-  #for non empty graph:
-  #density = 2 * |E|/(|V|*|V-1|)
-  #dense graphs have density close to 1
-  #sparse graphs have density close to 0
-  graph = Graph(complete_graph)
-  print "Density of complete graph (should be 1):",
-  print(graph.density())
-  print "Is complete graph connected? ",
-  print(graph.is_connected(None))
+  graphs = {}
+  graphs["random"] = graph
+  graphs["complete"] = Graph(complete_graph)
+  graphs["isolated"] = Graph(isolated_graph) 
 
-  graph = Graph(isolated_graph)
-  print "Density of isolated graph (should be 0):",
-  print(graph.density()) 
-  print "Is isolated graph connected? ",
-  print(graph.is_connected(None))
+  for key in graphs:
+    graph = graphs[key] 
+    print "\n" + key.upper() + "==========="
+    for vertex in graph.vertices():
+      print "Degree of " + str(vertex) + ": ",
+      print graph.vertex_degree(vertex)
+
+    isolated = graph.find_isolated_vertices()
+    print "Isolated: ",
+    print isolated 
+
+    delta = graph.delta()
+    print "delta: ",
+    print delta
+
+    Delta = graph.Delta()
+    print "Delta: ",
+    print Delta
+
+    deg_sequence = graph.degree_sequence()
+    print "Degree sequence: ",
+    print deg_sequence
+
+    print "Density: ",
+    print graph.density()
+    print "Number of edges: ",
+    print len(graph.edges())
+    print "Is our graph connected? ",
+    print graph.is_connected(None)
+
+    vertices = graph.vertices() 
+    for node_a in vertices:
+      for node_b in vertices: 
+        if node_a is not node_b:
+          print "dist(" + str(node_a) + ", " + str(node_b) + "): ",
+          print graph.dist(node_a, node_b)
+      print "eccentricity(" + str(node_a) + ") = ",
+      print graph.eccentricity(node_a)
+    print "diameter: ",
+    print graph.diameter()
   
+    
+     
