@@ -169,6 +169,47 @@ class Graph(object):
     seq.sort(reverse=True)
     return seq   
 
+  def density(self):
+    """returns density of graph.
+      	density is ratio of number of edges of a graph 	
+          and total number of edges the graph can have.
+          Measures how close the graph is to completed graph
+    	Every pair of vertice is connected by a unique edge
+    """
+    num_keys = len(self.__graph_dict.keys())
+    tot_num_edges_possible = 0
+    if num_keys > 0:
+      tot_num_edges_possible = num_keys*(num_keys - 1)/2
+    else:
+      return 0
+    num_edges = len(self.edges())
+    return num_edges/float(tot_num_edges_possible)
+
+  def is_connected(self, vertices_encountered, start_vertex=None): 
+    """determines if graph is connected.
+      graph is connected if every pair of verices in graph is connected"""
+    #pick start_vertex
+    #record which vertexes start_vertex is connected to
+    #if that collection of vertexes == collection of total vertexes, that vertex is connected
+    if vertices_encountered is None:
+      vertices_encountered = set()
+    vertices = list(self.__graph_dict.keys())
+    if len(vertices) == 0:
+      return true
+    if not start_vertex:
+      #choose start_vertex
+      start_vertex = vertices[0] 
+    vertices_encountered.add(start_vertex)
+    if len(vertices_encountered) == len(vertices):
+      return True
+    #check through other vertices reachable
+    current_state = False
+    for neighbor in self.__graph_dict[start_vertex]:
+      #avoid checking cycles
+      if neighbor not in vertices_encountered:
+        current_state = current_state or self.is_connected(vertices_encountered, neighbor)
+    return current_state 
+
 if __name__ == "__main__":
   g = { "a" : ["d"],
         "b" : ["c"],
@@ -259,3 +300,39 @@ if __name__ == "__main__":
   deg_sequence = graph.degree_sequence()
   print "Degree sequence: ",
   print deg_sequence
+
+  print "Density: ",
+  print graph.density()
+  print "Number of edges: ",
+  print len(graph.edges())
+  print "Is our graph connected? ",
+  print graph.is_connected(None)
+  
+  complete_graph = { 
+      "a" : ["b","c"],
+      "b" : ["a","c"],
+      "c" : ["a","b"]
+  }
+  
+  isolated_graph = { 
+      "a" : [],
+      "b" : [],
+      "c" : []
+  }
+
+  #for non empty graph:
+  #density = 2 * |E|/(|V|*|V-1|)
+  #dense graphs have density close to 1
+  #sparse graphs have density close to 0
+  graph = Graph(complete_graph)
+  print "Density of complete graph (should be 1):",
+  print(graph.density())
+  print "Is complete graph connected? ",
+  print(graph.is_connected(None))
+
+  graph = Graph(isolated_graph)
+  print "Density of isolated graph (should be 0):",
+  print(graph.density()) 
+  print "Is isolated graph connected? ",
+  print(graph.is_connected(None))
+  
