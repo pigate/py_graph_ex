@@ -87,6 +87,22 @@ class Graph(object):
           paths.append(p)
     return paths
 
+  def find_first_cycle(self, start_vertex, path=[]):
+    """find first cycle in graph"""
+    graph = self.__graph_dict
+    if start_vertex not in graph:
+      return None
+    #update acc
+    if start_vertex in path:
+      return path + [start_vertex]
+    path = path + [start_vertex]
+    for vertex in graph[start_vertex]:
+      extended_path_cycle = self.find_first_cycle(vertex, path)
+      if extended_path_cycle:
+        return extended_path_cycle
+    return None
+
+
 if __name__ == "__main__":
   g = { "a" : ["d"],
         "b" : ["c"],
@@ -141,3 +157,19 @@ if __name__ == "__main__":
   all_paths_a_f = graph.find_all_paths("a", "f", [])
   print "All paths from a to f: ",
   print all_paths_a_f
+
+  cycle_a = graph.find_first_cycle("a", [])
+  print "Cycle from a: ",
+  print cycle_a
+
+  cycle_b = graph.find_first_cycle("b", [])
+  print "Cycle from b: ",
+  print cycle_b
+ 
+  cycle_c = graph.find_first_cycle("c", [])
+  print "Cycle from c: ",
+  print cycle_c
+
+  cycle_f = graph.find_first_cycle("f", [])
+  print "Cycle from f: ",
+  print cycle_f
