@@ -32,7 +32,12 @@ class Graph(object):
       self.__graph_dict[vertex_x].append(vertex_y)
     else:
       self.__graph_dict[vertex_x] = [vertex_y]
+    if vertex_y in self.__graph_dict:
+      self.__graph_dict[vertex_y].append(vertex_x)
+    else:
+      self.__graph_dict[vertex_y] = [vertex_x]
   
+
   def __generate_edges(self):
     """static method to generate edges of the graph.
     Edges are represented as sets with one (a loop back to the vertex) or two 
@@ -102,6 +107,30 @@ class Graph(object):
         return extended_path_cycle
     return None
 
+  def vertex_degree(self, vertex):
+    #undirected graph, or counts all outward edges
+    #for directed graph, must go through other vertices, check if vertex appears
+    """calculates the degree of a vertex.
+      degree of vertex is number of edges connecting 
+      it (number of adjacent vertices).
+      Loops are counted double. i.e. every occurance 
+      of vertex in list of adjacent vertices"""
+    degree = 0
+    adj_vertices = self.__graph_dict[vertex]
+    #count occurances of vertex in its own adj list (as double) 
+    # and other vertices
+    degree = len(adj_vertices) + adj_vertices.count(vertex)
+    return degree
+
+  def find_isolated_vertices(self):
+    """returns list of isolated vertices for undirected graph. """
+    graph =self.__graph_dict
+    isolated = []
+    for vertex in graph:
+      #if [] 
+      if not graph[vertex]:
+        isolated.append(vertex)
+    return isolated 
 
 if __name__ == "__main__":
   g = { "a" : ["d"],
@@ -173,3 +202,11 @@ if __name__ == "__main__":
   cycle_f = graph.find_first_cycle("f", [])
   print "Cycle from f: ",
   print cycle_f
+
+  for vertex in graph.vertices():
+    print "Degree of " + str(vertex) + ": ",
+    print graph.vertex_degree(vertex)
+
+  isolated = graph.find_isolated_vertices()
+  print "Isolated: ",
+  print isolated 
