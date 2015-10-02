@@ -55,6 +55,21 @@ class Graph(object):
       res += str(edge) + " "
     return res 
 
+  def find_path(self, start_vertex, end_vertex, path=[]):
+    """find path from start_vertex to end_vertex in graph """
+    graph = self.__graph_dict
+    path = path + [start_vertex]
+    if start_vertex == end_vertex:
+      return path
+    if start_vertex not in graph:
+      return None
+    for vertex in graph[start_vertex]:
+      if vertex not in path:
+        extended_path = self.find_path(vertex, end_vertex, path)
+        if extended_path:
+          return extended_path
+    return None
+
 if __name__ == "__main__":
   g = { "a" : ["d"],
         "b" : ["c"],
@@ -94,6 +109,12 @@ if __name__ == "__main__":
   print("Edges of graph: ")
   print(graph.edges())
 
+  path_a_b = graph.find_path("a", "b", [])
+  print "Path from a to b: ",
+  print path_a_b
 
+  path_a_f = graph.find_path("a", "f", [])
+  print "Path from a to f: ",
+  print path_a_f
   
 
